@@ -2,7 +2,7 @@
 
 namespace Racine\Security\Core\Authentication;
 
-use Racine\Security\Core\Token\TokenInterface;
+use Racine\Security\Core\Authentication\Token\TokenInterface;
 
 interface AuthenticationManagerInterface 
 {
