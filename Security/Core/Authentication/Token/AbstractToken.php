@@ -3,6 +3,7 @@
 namespace Racine\Security\Core\Authentication\Token;
 
 use Racine\Security\Core\User\UserInterface;
+use Racine\Security\Core\Authentication\Token\TokenInterface;
 
 abstract class AbstractToken implements TokenInterface
 {

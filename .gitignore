@@ -1,4 +1,7 @@
-/.idea
-vendor/
-composer.lock
 phpunit.xml
+/vendor
+/composer.phar
+.vscode/
+.idea/
+composer*.log
+composer.lock

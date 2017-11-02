@@ -3,7 +3,6 @@
 
 namespace Racine\Security\Core\User;
 
-
 interface UserCheckerInterface
 {
     public function checkPreAuth(UserInterface $user);

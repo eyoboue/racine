@@ -67,7 +67,7 @@ class Application
         $this->iniTemplating();
         $this->configureDispatcher();
         
-        $this->dispatcher->dispatch(CoreEvents::INIT, new AppInitEvent($this));
+        $this->dispatcher->dispatch(RacineEvents::REQUEST);
     }
     
     private function initSession()

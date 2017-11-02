@@ -4,6 +4,7 @@ namespace Racine\Security\Core\Authentication\Provider;
 
 use Racine\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Racine\Security\Core\User\UserInterface;
+use Racine\Security\Core\Authentication\Provider\UserAuthenticationProvider;
 
 class ActiveDirectoryAuthenticationProvider extends UserAuthenticationProvider
 {
