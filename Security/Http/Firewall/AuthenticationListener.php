@@ -6,7 +6,6 @@ namespace Racine\Security\Http\Firewall;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Provider\AuthenticationProviderInterface;
 use Racine\Security\Authentication\Token\TokenInterface;
-use Racine\Security\Security;
 use Security\Exception\AuthenticationException;
 use Security\Exception\BadCredentialsException;
 use Security\Exception\SessionUnavailableException;
@@ -42,12 +41,12 @@ class AuthenticationListener implements ListenerInterface
      */
     private $dispatcher;
     
-    public function __construct(TokenInterface $token, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
+    public function __construct(TokenInterface $token = null, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
     {
         $this->token = $token;
         $this->authenticationManager = $authenticationProvider;
         $this->providerKey = $providerKey;
-        $this->options = array_merge_recursive(array(
+        $this->options = array_merge(array(
             'check_path' => '/login.php',
             'login_path' => '/login.php',
             'always_use_default_target_path' => false,
@@ -88,10 +87,8 @@ class AuthenticationListener implements ListenerInterface
                 throw new SessionUnavailableException('Your session has timed out, or you have disabled cookies.');
             }
             
-            $authToken = $this->authenticationManager->authenticate($this->token);
-            
-            if(is_null($authToken)){
-                throw new AuthenticationException();
+            if (!is_null($this->token)){
+                $this->token = $this->authenticationManager->authenticate($this->token);
             }
            
         }catch (AuthenticationException $e) {
@@ -100,6 +97,10 @@ class AuthenticationListener implements ListenerInterface
                 $response = new RedirectResponse(internal_request_uri($this->options['login_path']));
             }
             
+        }
+        
+        if(is_null($this->token)){
+            $response = new RedirectResponse(internal_request_uri($this->options['login_path']));
         }
         
         $event->setResponse($response);

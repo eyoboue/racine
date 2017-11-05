@@ -4,7 +4,7 @@
  * @param string $filename
  * @return bool|mixed
  */
-function config($filename, $objectForMap = true, $ext = "php"){
+function config($filename, $objectForMap = false, $ext = "php"){
     return \Racine\Config::get($filename, $objectForMap, $ext);
 }
 
@@ -37,6 +37,13 @@ function asset($path){
  */
 function request(){
     return \Racine\Application::getInstance()->getRequest();
+}
+
+/**
+ * @return \Racine\Logger
+ */
+function logger(){
+    return \Racine\Application::getInstance()->getLogger();
 }
 
 /**
@@ -85,6 +92,7 @@ function internal_request_uri($uri = null){
     }else{
         return $uri;
     }
+    
 }
 
 /**

@@ -7,6 +7,7 @@ namespace Racine\Security\Http;
 use Racine\Config;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Token\TokenInterface;
+use Racine\Security\Authentication\Token\UsernamePasswordToken;
 use Racine\Security\Http\Firewall\AuthenticationListener;
 use Racine\Security\Http\Session\TokenSessionResolver;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -55,7 +56,7 @@ class Authenticator
         
         $providerReflexionClass = new \ReflectionClass($securityProviderConfig['class']);
     
-        if(!$providerReflexionClass->implementsInterface('\\Racine\\Security\\Authentication\\Provider\\UserAuthenticationProvider')){
+        if(!$providerReflexionClass->implementsInterface('\\Racine\\Security\\Authentication\\Provider\\AuthenticationProviderInterface')){
             throw new \RuntimeException('Authentication provider must be implemente \\Racine\\Security\\Authentication\\Provider\\AuthenticationProviderInterface');
         }
         if(!$providerReflexionClass->isSubclassOf('\\Racine\\Security\\Authentication\\Provider\\UserAuthenticationProvider')){

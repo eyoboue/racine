@@ -3,23 +3,25 @@
 
 namespace Racine;
 
+use Racine\Event\FinishRequestEvent;
+use Racine\Event\GetResponseEvent;
 use Racine\Http\Controller as BaseController;
 use Racine\Http\Request;
 use Racine\Http\Response;
 use Racine\Http\Session;
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Http\Authenticator;
-use Racine\Security\Security;
+use Racine\Security\Http\Session\TokenSessionResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
 use Symfony\Component\Templating\PhpEngine;
 use Symfony\Component\Templating\TemplateNameParser;
-use Racine\Event\FinishRequestEvent;
 
 class Application
 {
     const DEFAULT_CONTROLLER_ACTION = 'index';
+    const SESSION_NAME = 'racine_session';
     
     /**
      * @var TokenInterface
@@ -56,6 +58,11 @@ class Application
      */
     private $dispatcher;
     
+    /**
+     * @var Logger
+     */
+    private $logger;
+    
     private function __construct()
     {
         $this->initialize();
@@ -63,9 +70,11 @@ class Application
     
     private function initialize()
     {
+        $this->logger = new Logger();
+        
         $this->request = Request::createFromGlobals();
         $this->initSession();
-        
+    
         $this->loadSessionToken();
         
         $this->initDB();
@@ -75,20 +84,18 @@ class Application
         $this->configureDispatcher();
         $this->securityHandle();
     
-        $this->dispatcher->dispatch(RacineEvents::REQUEST);
-    
+        $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this->request));
     }
     
     private function initSession()
     {
         $session = new Session();
+        
         if(!$session->isStarted()){
-            $session->setName('racine_session');
+            $session->setName(self::SESSION_NAME);
             $session->start();
         }
         $this->request->setSession($session);
-        
-        
     }
     
     private function configureDispatcher()
@@ -105,13 +112,7 @@ class Application
     
     private function loadSessionToken()
     {
-        $serializedToken = $this->request->getSession()->get(Security::LOGGED_TOKEN);
-        $token = null;
-        if(!is_null($serializedToken)){
-            $token = unserialize($serializedToken);
-        }
-    
-        $this->token = $token;
+        $this->token = (new TokenSessionResolver($this->request))->getToken();
     }
     
     private function setListeners()
@@ -213,12 +214,16 @@ class Application
     {
         $this->dbCfg = \ActiveRecord\Config::instance();
         $this->dbCfg->set_model_directory(Config::getAppDir().DIRECTORY_SEPARATOR.'Models');
-        $dbConfig = Config::get('app')->db;
-        $connections = [
-            'default' => $dbConfig->driver.'://'.$dbConfig->user.':'.$dbConfig->pass.'@'.$dbConfig->host.':'.$dbConfig->port
-                .'/'.$dbConfig->name.'?charset='.$dbConfig->charset
-        ];
-        $this->dbCfg->set_connections($connections, 'default');
+        if(isset(Config::get('database', true)->connections) && ($dbConfigs = Config::get('database', true))){
+            $dbConfig = $dbConfigs->connections->{$dbConfigs->default};
+            $connections = [
+                'default' => $dbConfig->driver.'://'.$dbConfig->user.':'.$dbConfig->pass.'@'.$dbConfig->host.':'.$dbConfig->port
+                    .'/'.$dbConfig->name.'?charset='.$dbConfig->charset
+            ];
+            $this->dbCfg->set_connections($connections, 'default');
+        }
+        
+        
         
     }
     
@@ -251,6 +256,14 @@ class Application
     public function getToken()
     {
         return $this->token;
+    }
+    
+    /**
+     * @return Logger
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
     
 }
