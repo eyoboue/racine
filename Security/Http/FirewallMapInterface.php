@@ -1,23 +1,9 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Racine\Security\Http;
 
-use Racine\Http\Request;
 
-/**
- * This interface must be implemented by firewall maps.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
- */
+use Racine\Http\Request;
 
 interface FirewallMapInterface
 {

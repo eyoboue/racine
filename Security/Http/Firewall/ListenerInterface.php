@@ -2,6 +2,7 @@
 
 namespace Racine\Security\Http\Firewall;
 
+use Racine\Event\GetResponseEvent;
 
 interface ListenerInterface
 {

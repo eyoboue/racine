@@ -10,12 +10,6 @@ class Config
      */
     private static $instance = null;
     
-    /**
-     * @var FileLocator
-     */
-    private $locator;
-    
-    
     private function __construct()
     {
         $configDirectories = [_CONFIG_DIR_];
@@ -29,7 +23,7 @@ class Config
         return self::$instance;
     }
     
-    public static function get($filename, $objectForMap = true, $ext = "php")
+    public static function get($filename, $objectForMap = false, $ext = "php")
     {
         $config = require self::getConfigDir().DIRECTORY_SEPARATOR.$filename.'.'.$ext;
         if($objectForMap){
@@ -59,6 +53,9 @@ class Config
         return _APP_DIR_;
     }
     
+    /**
+     * @return string
+     */
     public static function getViewsDir()
     {
         return _VIEWS_DIR_;

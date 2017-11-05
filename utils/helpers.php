@@ -12,7 +12,7 @@ function config($filename, $objectForMap = true, $ext = "php"){
  * @return string
  */
 function base_path() {
-    return config('app')->path;
+    return config('app')['path'];
 }
 
 
@@ -40,7 +40,7 @@ function request(){
 }
 
 /**
- * @return null|\Racine\Http\Session
+ * @return null|\Symfony\Component\HttpFoundation\Session\SessionInterface
  */
 function session(){
     return request()->getSession();
@@ -50,33 +50,24 @@ function session(){
  * @return \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface
  */
 function flash(){
-    return session()->getFlashBag();
+    $session = session();
+    if(!is_null($session) && method_exists($session, 'getFlashBag'))
+        return $session->getFlashBag();
+    return null;
 }
 
 /**
- * @return \Racine\Http\Security\Authentication|null
+ * @return \Racine\Security\Authentication\Token\TokenInterface|null
  */
-function auth(){
-    return \App\Http\Security\Authentication::getInstance();
+function token(){
+    return \Racine\Application::getInstance()->getToken();
 }
 
 /**
- * @return null|\App\Models\User
+ * @return null|\Racine\Security\User\UserInterface|\Racine\Model
  */
 function user(){
-    return auth()->getUser();
-}
-
-/**
- * @return null|string|void
- */
-function auth_token(){
-    $user = user();
-    if(!is_null($user)){
-        return $user->getToken();
-    }else{
-        return null;
-    }
+    return token()->getUser();
 }
 
 /**
@@ -88,9 +79,9 @@ function internal_request_uri($uri = null){
     if(is_null($uri)){
         $uri = request()->getRequestUri();
     }
-    $pos = strpos($uri, config('app')->path);
+    $pos = strpos($uri, config('app')['path']);
     if($pos === 0){
-        return substr($uri, strlen(config('app')->path)-1);
+        return substr($uri, strlen(config('app')['path'])-1);
     }else{
         return $uri;
     }

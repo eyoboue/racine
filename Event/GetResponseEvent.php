@@ -2,7 +2,8 @@
 
 namespace Racine\Event;
 
-use Racine\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
+
 
 /**
  * Allows to create a response for a request.

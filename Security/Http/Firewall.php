@@ -2,25 +2,16 @@
 
 namespace Racine\Security\Http;
 
-
-use Racine\Event\FinishRequestEvent;
-use Racine\Event\GetResponseEvent;
 use Racine\RacineEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Racine\Event\GetResponseEvent;
+use Racine\Event\FinishRequestEvent;
 
 class Firewall implements EventSubscriberInterface
 {
-    /**
-     * @var FirewallMapInterface
-     */
     private $map;
-    /**
-     * @var EventDispatcherInterface
-     */
     private $dispatcher;
-    
-    private $exceptionListeners;
     
     /**
      * Constructor.
@@ -32,7 +23,6 @@ class Firewall implements EventSubscriberInterface
     {
         $this->map = $map;
         $this->dispatcher = $dispatcher;
-        $this->exceptionListeners = new \SplObjectStorage();
     }
     
     /**
@@ -44,11 +34,7 @@ class Firewall implements EventSubscriberInterface
     {
         
         // register listeners for this firewall
-        list($listeners, $exceptionListener) = $this->map->getListeners($event->getRequest());
-        if (null !== $exceptionListener) {
-            $this->exceptionListeners[$event->getRequest()] = $exceptionListener;
-            $exceptionListener->register($this->dispatcher);
-        }
+        list($listeners) = $this->map->getListeners($event->getRequest());
         
         // initiate the listener chain
         foreach ($listeners as $listener) {
@@ -64,10 +50,6 @@ class Firewall implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         
-        if (isset($this->exceptionListeners[$request])) {
-            $this->exceptionListeners[$request]->unregister($this->dispatcher);
-            unset($this->exceptionListeners[$request]);
-        }
     }
     
     /**

@@ -1,26 +1,10 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Racine\Security\Http;
 
-use Racine\Http\Request;
-use Racine\Security\Http\Firewall\ExceptionListener;
-use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 
-/**
- * FirewallMap allows configuration of different firewalls for specific parts
- * of the website.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- */
+use Racine\Http\Request;
+use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 
 class FirewallMap implements FirewallMapInterface
 {
@@ -29,11 +13,10 @@ class FirewallMap implements FirewallMapInterface
     /**
      * @param RequestMatcherInterface $requestMatcher
      * @param array                   $listeners
-     * @param ExceptionListener       $exceptionListener
      */
-    public function add(RequestMatcherInterface $requestMatcher = null, array $listeners = array(), ExceptionListener $exceptionListener = null)
+    public function add(RequestMatcherInterface $requestMatcher = null, array $listeners = array())
     {
-        $this->map[] = array($requestMatcher, $listeners, $exceptionListener);
+        $this->map[] = array($requestMatcher, $listeners);
     }
     
     /**
@@ -43,10 +26,10 @@ class FirewallMap implements FirewallMapInterface
     {
         foreach ($this->map as $elements) {
             if (null === $elements[0] || $elements[0]->matches($request)) {
-                return array($elements[1], $elements[2]);
+                return array($elements[1]);
             }
         }
         
-        return array(array(), null);
+        return array(array());
     }
 }

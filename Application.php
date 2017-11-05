@@ -3,26 +3,28 @@
 
 namespace Racine;
 
-
-use App\Events\Core\AppInitEvent;
-use App\Events\Core\AppRequestEvent;
-use App\Events\Core\AppTerminateEvent;
-use App\Events\Core\CoreEvents;
 use Racine\Http\Controller as BaseController;
 use Racine\Http\Request;
 use Racine\Http\Response;
 use Racine\Http\Session;
-use Racine\Subscribers\Core\AuthSubscriber;
+use Racine\Security\Authentication\Token\TokenInterface;
+use Racine\Security\Http\Authenticator;
+use Racine\Security\Security;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
 use Symfony\Component\Templating\PhpEngine;
 use Symfony\Component\Templating\TemplateNameParser;
-use Racine\Config;
+use Racine\Event\FinishRequestEvent;
 
 class Application
 {
     const DEFAULT_CONTROLLER_ACTION = 'index';
+    
+    /**
+     * @var TokenInterface
+     */
+    private $token;
     
     /**
      * @var Application
@@ -63,11 +65,18 @@ class Application
     {
         $this->request = Request::createFromGlobals();
         $this->initSession();
+        
+        $this->loadSessionToken();
+        
         $this->initDB();
         $this->iniTemplating();
+    
+    
         $this->configureDispatcher();
-        
+        $this->securityHandle();
+    
         $this->dispatcher->dispatch(RacineEvents::REQUEST);
+    
     }
     
     private function initSession()
@@ -78,31 +87,42 @@ class Application
             $session->start();
         }
         $this->request->setSession($session);
+        
+        
     }
     
     private function configureDispatcher()
     {
         $this->dispatcher = new EventDispatcher();
         $this->setListeners();
-        $this->setSubscribers();
+    }
+    
+    private function securityHandle()
+    {
+        $authenticator = new Authenticator($this->request, $this->dispatcher);
+        $authenticator->watch();
+    }
+    
+    private function loadSessionToken()
+    {
+        $serializedToken = $this->request->getSession()->get(Security::LOGGED_TOKEN);
+        $token = null;
+        if(!is_null($serializedToken)){
+            $token = unserialize($serializedToken);
+        }
+    
+        $this->token = $token;
     }
     
     private function setListeners()
     {
-        /*$this->dispatcher->addListener(CoreEvents::INIT, function (AppInitEvent $event){
-        
-        });*/
-    
-    }
-    
-    private function setSubscribers()
-    {
-        $this->dispatcher->addSubscriber(new AuthSubscriber());
+        $listenerResolver = new ListenerResolver();
+        $listenerResolver->resolve($this->dispatcher);
     }
     
     private function iniTemplating()
     {
-        $loader = new FilesystemLoader(Config::getViewsDir().DIRECTORY_SEPARATOR.'%name%');
+        $loader = new FilesystemLoader([Config::getViewsDir().DIRECTORY_SEPARATOR.'%name%']);
     
         $this->templating = new PhpEngine(new TemplateNameParser(), $loader);
         $this->templating->set(new SlotsHelper());
@@ -118,12 +138,13 @@ class Application
     
     public function run($controllerClass = null, $action = null)
     {
-        $this->dispatcher->dispatch(CoreEvents::REQUEST, new AppRequestEvent($this->request));
-        
-        $response = $this->handle($controllerClass, $action);
-        
+        if(is_callable($controllerClass)){
+            $response = $controllerClass($this);
+        }else{
+            $response = $this->handle($controllerClass, $action);
+        }
+    
         self::send($response);
-        
         $this->terminate($response);
     }
     
@@ -170,7 +191,7 @@ class Application
     {
         $controllerReflexionClass = new \ReflectionClass($controllerClass);
         
-        if(!$controllerReflexionClass->isSubclassOf('App\\Http\\Controller')){
+        if(!$controllerReflexionClass->isSubclassOf('\\App\\Http\\Controller')){
             throw new \Exception($controllerClass.' must be subclass of "App\\Http\\Controller"');
         }
         
@@ -203,7 +224,7 @@ class Application
     
     private function terminate($response)
     {
-        $this->dispatcher->dispatch(CoreEvents::TERMINATE, new AppTerminateEvent($this->request, $response));
+        $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
     }
     
     /**
@@ -225,6 +246,11 @@ class Application
     public static function templating()
     {
         return self::getInstance()->getTemplating();
+    }
+    
+    public function getToken()
+    {
+        return $this->token;
     }
     
 }

@@ -17,7 +17,7 @@ class Session extends \Symfony\Component\HttpFoundation\Session\Session
         parent::__construct($storage, $attributes, $flashes);
         if($this->storage instanceof NativeSessionStorage){
             $this->storage->setOptions(['cookie_lifetime' => 60*60*12]);
-            // $this->storage->setOptions(['cookie_path' => config('app')->path]);
+             $this->storage->setOptions(['cookie_path' => config('app')['path']]);
         }
     }
 }
