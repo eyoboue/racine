@@ -4,6 +4,7 @@
 namespace Racine\Security\Http;
 
 
+use Racine\Application;
 use Racine\Config;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Token\TokenInterface;
@@ -40,7 +41,7 @@ class Authenticator
         
     }
     
-    public function watch()
+    public function watch(Application &$application)
     {
         $securityConfig = Config::get('security');
         if(empty($securityConfig['firewall'])){
@@ -69,7 +70,7 @@ class Authenticator
             $options = array_merge($securityFirewallConfig['form_login'], $options);
         }
         
-        $authListener = new AuthenticationListener($this->defaultToken, $provider, $securityFirewallConfig['provider'], $options, $this->dispatcher);
+        $authListener = new AuthenticationListener($application, $this->defaultToken, $provider, $securityFirewallConfig['provider'], $options, $this->dispatcher);
         $listeners[] = $authListener;
     
         $firewallMap = new FirewallMap();

@@ -6,7 +6,7 @@ namespace Racine\Security\Authentication\Provider;
 use Racine\Config;
 use Racine\Security\Authentication\Token\UsernamePasswordToken;
 use Racine\Security\User\UserInterface;
-use Security\Exception\BadCredentialsException;
+use Racine\Security\Exception\BadCredentialsException;
 
 class DaoAuthenticationProvider extends UserAuthenticationProvider
 {

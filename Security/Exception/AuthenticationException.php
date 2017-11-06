@@ -1,6 +1,6 @@
 <?php
 
-namespace Security\Exception;
+namespace Racine\Security\Exception;
 
 
 use Racine\Security\Authentication\Token\TokenInterface;

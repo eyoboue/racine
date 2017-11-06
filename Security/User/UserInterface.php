@@ -60,5 +60,8 @@ interface UserInterface extends \Serializable
      */
     public function isEnabled();
     
+    /**
+     * @return boolean
+     */
     public function isAdmin();
 }

@@ -4,7 +4,7 @@ namespace Racine\Security\Authentication\Provider;
 
 
 use Racine\Security\Authentication\Token\TokenInterface;
-use Security\Exception\AuthenticationException;
+use Racine\Security\Exception\AuthenticationException;
 
 interface AuthenticationProviderInterface
 {

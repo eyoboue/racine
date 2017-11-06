@@ -3,13 +3,14 @@
 namespace Racine\Security\Http\Firewall;
 
 
+use Racine\Application;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Provider\AuthenticationProviderInterface;
 use Racine\Security\Authentication\Token\TokenInterface;
-use Security\Exception\AuthenticationException;
-use Security\Exception\BadCredentialsException;
-use Security\Exception\SessionUnavailableException;
-use Security\Exception\UsernameNotFoundException;
+use Racine\Security\Exception\AuthenticationException;
+use Racine\Security\Exception\BadCredentialsException;
+use Racine\Security\Exception\SessionUnavailableException;
+use Racine\Security\Exception\UsernameNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Racine\Event\GetResponseEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,8 +42,15 @@ class AuthenticationListener implements ListenerInterface
      */
     private $dispatcher;
     
-    public function __construct(TokenInterface $token = null, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
+    /**
+     * @var Application
+     */
+    private $application;
+    
+    public function __construct(Application $application, TokenInterface $token = null, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
     {
+        $this->application = $application;
+        
         $this->token = $token;
         $this->authenticationManager = $authenticationProvider;
         $this->providerKey = $providerKey;
@@ -88,7 +96,10 @@ class AuthenticationListener implements ListenerInterface
             }
             
             if (!is_null($this->token)){
-                $this->token = $this->authenticationManager->authenticate($this->token);
+                $token = $this->authenticationManager->authenticate($this->token);
+                if($token instanceof TokenInterface){
+                    $this->application->setToken($token);
+                }
             }
            
         }catch (AuthenticationException $e) {

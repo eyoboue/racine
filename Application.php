@@ -81,11 +81,8 @@ class Application
         $this->initSession();
     
         $this->initDB();
-        
-        $this->loadSessionToken();
     
         $this->iniTemplating();
-    
     
         $this->configureDispatcher();
         $this->securityHandle();
@@ -113,12 +110,7 @@ class Application
     private function securityHandle()
     {
         $authenticator = new Authenticator($this->request, $this->dispatcher);
-        $authenticator->watch();
-    }
-    
-    private function loadSessionToken()
-    {
-        $this->token = (new TokenSessionResolver($this->request))->getToken();
+        $authenticator->watch($this);
     }
     
     private function setListeners()
@@ -274,6 +266,18 @@ class Application
     {
         return self::getInstance()->getTemplating();
     }
+    
+    /**
+     * @param TokenInterface $token
+     * @return self
+     */
+    public function setToken(TokenInterface $token)
+    {
+        $this->token = $token;
+        return $this;
+    }
+    
+    
     
     public function getToken()
     {

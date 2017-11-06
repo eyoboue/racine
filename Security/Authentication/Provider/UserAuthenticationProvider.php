@@ -6,10 +6,10 @@ namespace Racine\Security\Authentication\Provider;
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Authentication\Token\UsernamePasswordToken;
 use Racine\Security\User\UserInterface;
-use Security\Exception\AuthenticationException;
-use Security\Exception\AuthenticationServiceException;
-use Security\Exception\BadCredentialsException;
-use Security\Exception\UsernameNotFoundException;
+use Racine\Security\Exception\AuthenticationException;
+use Racine\Security\Exception\AuthenticationServiceException;
+use Racine\Security\Exception\BadCredentialsException;
+use Racine\Security\Exception\UsernameNotFoundException;
 
 abstract class UserAuthenticationProvider implements AuthenticationProviderInterface
 {
