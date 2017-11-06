@@ -63,6 +63,11 @@ class Application
      */
     private $logger;
     
+    /**
+     * @var string|null
+     */
+    private $action = null;
+    
     private function __construct()
     {
         $this->initialize();
@@ -75,9 +80,10 @@ class Application
         $this->request = Request::createFromGlobals();
         $this->initSession();
     
-        $this->loadSessionToken();
-        
         $this->initDB();
+        
+        $this->loadSessionToken();
+    
         $this->iniTemplating();
     
     
@@ -139,6 +145,7 @@ class Application
     
     public function run($controllerClass = null, $action = null)
     {
+        $this->action = $action;
         if(is_callable($controllerClass)){
             $response = $controllerClass($this);
         }else{
@@ -168,17 +175,10 @@ class Application
     private function handle($controllerClass, $action = null)
     {
         if(empty($action)){
-            if($this->request->query->has('_a')){
-                $action = $this->request->query->get('_a');
+            if($this->request->query->has(_CONTROLLER_REQUEST_ACTION_)){
+                $action = $this->request->query->get(_CONTROLLER_REQUEST_ACTION_);
             }else{
-                switch(strtolower($this->request->getMethod())){
-                    case 'delete':
-                        $action = 'delete';
-                        break;
-                    default:
-                        $action = self::DEFAULT_CONTROLLER_ACTION;
-                }
-            
+                $action = self::DEFAULT_CONTROLLER_ACTION;
             }
         }
         try{
@@ -192,12 +192,28 @@ class Application
     {
         $controllerReflexionClass = new \ReflectionClass($controllerClass);
         
-        if(!$controllerReflexionClass->isSubclassOf('\\App\\Http\\Controller')){
+        if(!$controllerReflexionClass->isSubclassOf('\\Racine\\Http\\Controller')){
             throw new \Exception($controllerClass.' must be subclass of "App\\Http\\Controller"');
         }
         
-        if(!$controllerReflexionClass->hasMethod($action)){
-            throw new \BadMethodCallException($controllerClass." doesn't have '".$action."' method");
+        if(is_null($this->action)){
+            switch(strtolower($this->request->getMethod())){
+                case 'post':
+                    $action = 'add';
+                    break;
+                case 'put':
+                    $action = 'edit';
+                    break;
+                case 'delete':
+                    $action = 'delete';
+                    break;
+                default:
+                    $action = self::DEFAULT_CONTROLLER_ACTION;
+            }
+            if(!$controllerReflexionClass->hasMethod($action)){
+                throw new \BadMethodCallException($controllerClass." doesn't have '".$action."' method");
+            }
+            
         }
         
         $this->currentController = new $controllerClass();
@@ -215,10 +231,11 @@ class Application
         $this->dbCfg = \ActiveRecord\Config::instance();
         $this->dbCfg->set_model_directory(Config::getAppDir().DIRECTORY_SEPARATOR.'Models');
         if(isset(Config::get('database', true)->connections) && ($dbConfigs = Config::get('database', true))){
+            
             $dbConfig = $dbConfigs->connections->{$dbConfigs->default};
             $connections = [
-                'default' => $dbConfig->driver.'://'.$dbConfig->user.':'.$dbConfig->pass.'@'.$dbConfig->host.':'.$dbConfig->port
-                    .'/'.$dbConfig->name.'?charset='.$dbConfig->charset
+                'default' => $dbConfig->driver.'://'.$dbConfig->user.':'.$dbConfig->password.'@'.$dbConfig->host.':'.$dbConfig->port
+                    .'/'.$dbConfig->database.'?charset='.$dbConfig->charset
             ];
             $this->dbCfg->set_connections($connections, 'default');
         }
@@ -246,6 +263,11 @@ class Application
     public function getTemplating()
     {
         return $this->templating;
+    }
+    
+    public function render($view, array $params = [])
+    {
+        return new Response($this->templating->render($view, $params));
     }
     
     public static function templating()

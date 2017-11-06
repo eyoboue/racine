@@ -2,7 +2,6 @@
 
 namespace Racine;
 
-use Racine\Security\User\UserInterface;
 
 abstract class Model extends \ActiveRecord\Model
 {

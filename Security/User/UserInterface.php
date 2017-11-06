@@ -3,7 +3,7 @@
 namespace Racine\Security\User;
 
 
-interface UserInterface
+interface UserInterface extends \Serializable
 {
     /**
      * Returns the roles granted to the user.
@@ -32,15 +32,6 @@ interface UserInterface
      * @return string The password
      */
     public function getPassword();
-    
-    /**
-     * Returns the salt that was originally used to encode the password.
-     *
-     * This can return null if the password was not encoded using a salt.
-     *
-     * @return string|null The salt
-     */
-    public function getSalt();
     
     /**
      * Returns the username used to authenticate the user.

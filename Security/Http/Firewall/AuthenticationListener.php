@@ -72,7 +72,7 @@ class AuthenticationListener implements ListenerInterface
     {
         $request = $event->getRequest();
         
-        if($request->getRequestUri() == internal_request_uri($this->options['login_path']) || $request->getRequestUri() == internal_request_uri($this->options['check_path'])){
+        if(internal_request_uri($request->getRequestUri()) == $this->options['login_path'] || internal_request_uri($request->getRequestUri()) == $this->options['check_path']){
             return;
         }
         
@@ -94,16 +94,15 @@ class AuthenticationListener implements ListenerInterface
         }catch (AuthenticationException $e) {
             $this->onFailure($request, $e);
             if($e instanceof UsernameNotFoundException || $e instanceof BadCredentialsException){
-                $response = new RedirectResponse(internal_request_uri($this->options['login_path']));
+                $response = new RedirectResponse(path($this->options['login_path']));
             }
             
         }
         
         if(is_null($this->token)){
-            $response = new RedirectResponse(internal_request_uri($this->options['login_path']));
+            $response = new RedirectResponse(path($this->options['login_path']));
         }
         
-        $event->setResponse($response);
         if($response instanceof RedirectResponse){
             $response->send();
         }

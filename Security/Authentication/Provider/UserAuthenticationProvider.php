@@ -71,7 +71,7 @@ abstract class UserAuthenticationProvider implements AuthenticationProviderInter
             throw $e;
         }
         
-        $authenticatedToken = new UsernamePasswordToken($user, $token->getCredentials(), $this->providerKey, $this->getRoles($user, $token));
+        $authenticatedToken = new UsernamePasswordToken($user, $token->getCredentials(), $this->getRoles($user, $token));
         $authenticatedToken->setAttributes($token->getAttributes());
         
         return $authenticatedToken;
@@ -82,7 +82,7 @@ abstract class UserAuthenticationProvider implements AuthenticationProviderInter
      */
     public function supports(TokenInterface $token)
     {
-        return $token instanceof UsernamePasswordToken && $this->providerKey === $token->getProviderKey();
+        return $token instanceof UsernamePasswordToken;
     }
     
     /**

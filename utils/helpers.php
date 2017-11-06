@@ -74,7 +74,9 @@ function token(){
  * @return null|\Racine\Security\User\UserInterface|\Racine\Model
  */
 function user(){
-    return token()->getUser();
+    if(token() instanceof \Racine\Security\Authentication\Token\TokenInterface)
+        return token()->getUser();
+    return null;
 }
 
 /**

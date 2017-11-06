@@ -27,7 +27,7 @@ class Config
     {
         $config = require self::getConfigDir().DIRECTORY_SEPARATOR.$filename.'.'.$ext;
         if($objectForMap){
-            $config = json_encode($config);
+            $config = json_decode(json_encode($config), false);
         }
 
         return $config;
