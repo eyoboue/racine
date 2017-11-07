@@ -4,6 +4,7 @@ namespace Racine\Security\Http\Firewall;
 
 
 use Racine\Application;
+use Racine\Http\Controller;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Provider\AuthenticationProviderInterface;
 use Racine\Security\Authentication\Token\TokenInterface;
@@ -47,7 +48,7 @@ class AuthenticationListener implements ListenerInterface
      */
     private $application;
     
-    public function __construct(Application $application, TokenInterface $token = null, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
+    public function __construct(Application &$application, TokenInterface $token = null, AuthenticationProviderInterface $authenticationProvider, $providerKey, array $options = [], EventDispatcherInterface $dispatcher = null)
     {
         $this->application = $application;
         
@@ -99,6 +100,8 @@ class AuthenticationListener implements ListenerInterface
                 $token = $this->authenticationManager->authenticate($this->token);
                 if($token instanceof TokenInterface){
                     $this->application->setToken($token);
+                    
+                    
                 }
             }
            

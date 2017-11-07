@@ -4,6 +4,7 @@
 namespace Racine\Http;
 
 
+use Racine\Security\Authentication\Token\TokenInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Templating\PhpEngine;
 
@@ -17,13 +18,18 @@ abstract class Controller
     /**
      * @var PhpEngine
      */
-    private $templating;
+    protected $templating;
     
     
     /**
      * @var EventDispatcher
      */
-    private $dispatcher;
+    protected $dispatcher;
+    
+    /**
+     * @var TokenInterface
+     */
+    protected $token;
     
     /**
      * @var array
@@ -56,5 +62,10 @@ abstract class Controller
     public function setDispatcher(EventDispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
+    }
+    
+    public function setToken(TokenInterface $token)
+    {
+        $this->token = $token;
     }
 }

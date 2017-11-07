@@ -213,6 +213,9 @@ class Application
         $this->currentController->setRequest($this->request);
         $this->currentController->setTemplating($this->templating);
         $this->currentController->setDispatcher($this->dispatcher);
+        if($this->getToken() instanceof TokenInterface){
+            $this->currentController->setToken($this->getToken());
+        }
         
         $method = new \ReflectionMethod($controllerClass, $action);
         return $method->invoke($this->currentController);
@@ -292,4 +295,11 @@ class Application
         return $this->logger;
     }
     
+    /**
+     * @return BaseController
+     */
+    public function getCurrentController()
+    {
+        return $this->currentController;
+    }
 }
