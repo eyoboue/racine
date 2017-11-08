@@ -47,7 +47,7 @@ function logger(){
 }
 
 /**
- * @return null|\Symfony\Component\HttpFoundation\Session\SessionInterface
+ * @return null|\Racine\Http\Session
  */
 function session(){
     return request()->getSession();

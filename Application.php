@@ -11,7 +11,6 @@ use Racine\Http\Response;
 use Racine\Http\Session;
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Http\Authenticator;
-use Racine\Security\Http\Session\TokenSessionResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
