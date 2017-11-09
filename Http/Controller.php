@@ -4,7 +4,9 @@
 namespace Racine\Http;
 
 
+use Racine\Logger\Logger;
 use Racine\Security\Authentication\Token\TokenInterface;
+use Racine\Security\User\UserInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Templating\PhpEngine;
 
@@ -30,6 +32,16 @@ abstract class Controller
      * @var TokenInterface
      */
     protected $token;
+    
+    /**
+     * @var UserInterface
+     */
+    protected $user;
+    
+    /**
+     * @var Logger
+     */
+    protected $logger;
     
     /**
      * @var array
@@ -67,5 +79,16 @@ abstract class Controller
     public function setToken(TokenInterface $token)
     {
         $this->token = $token;
+        if($token instanceof TokenInterface){
+            $this->user = $this->token->getUser();
+        }
+    }
+    
+    /**
+     * @param Logger $logger
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
     }
 }

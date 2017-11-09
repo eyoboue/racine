@@ -9,6 +9,7 @@ use Racine\Http\Controller as BaseController;
 use Racine\Http\Request;
 use Racine\Http\Response;
 use Racine\Http\Session;
+use Racine\Logger\Logger;
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Http\Authenticator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -78,15 +79,13 @@ class Application
         
         $this->request = Request::createFromGlobals();
         $this->initSession();
-    
         $this->initDB();
-    
         $this->iniTemplating();
     
         $this->configureDispatcher();
         $this->securityHandle();
     
-        $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this->request));
+        $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this));
     }
     
     private function initSession()
@@ -209,6 +208,7 @@ class Application
         
         $this->currentController = new $controllerClass();
         
+        $this->currentController->setLogger($this->logger);
         $this->currentController->setRequest($this->request);
         $this->currentController->setTemplating($this->templating);
         $this->currentController->setDispatcher($this->dispatcher);

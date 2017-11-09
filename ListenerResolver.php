@@ -32,18 +32,17 @@ class ListenerResolver implements ListenerResolverInterface
         
         foreach ($this->listeners as $name => $listener){
             if(!empty($listener['class']) && !empty($listener['type'])){
-                $eventListener = $listener['class']();
                 switch ($listener['type']){
                     case 'racine.event_listener':
                         if(!empty($listener['method']) && !empty($listener['event'])){
                             if(!empty($listener['priority'])){
                                 $listener['priority'] = 0;
                             }
-                            $dispatcher->addListener($listener['event'], [$eventListener, $listener['method']], (int)$listener['priority']);
+                            $dispatcher->addListener($listener['event'], [new $listener['class'](), $listener['method']], (int)$listener['priority']);
                         }
                         break;
                     case 'racine.event_subscriber':
-                        $dispatcher->addSubscriber($eventListener);
+                        $dispatcher->addSubscriber(new $listener['class']());
                         break;
                 }
             }

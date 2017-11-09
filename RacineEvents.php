@@ -6,6 +6,18 @@ namespace Racine;
 final class RacineEvents
 {
     /**
+     * The APPLICATION event occurs at the application is initialized
+     *
+     * Logger, Request, Database, Templating, EventDispatcher are initialized
+     *
+     * @Event
+     *
+     * @var string
+     */
+    const APPLICATION = 'racine.application';
+    
+    
+    /**
      * The REQUEST event occurs at the very beginning of request
      * dispatching.
      *

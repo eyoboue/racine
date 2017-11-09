@@ -40,7 +40,7 @@ function request(){
 }
 
 /**
- * @return \Racine\Logger
+ * @return \Racine\Logger\Logger
  */
 function logger(){
     return \Racine\Application::getInstance()->getLogger();

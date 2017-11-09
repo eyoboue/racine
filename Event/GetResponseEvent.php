@@ -2,6 +2,7 @@
 
 namespace Racine\Event;
 
+use Racine\Application;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -17,11 +18,28 @@ use Symfony\Component\HttpFoundation\Response;
 class GetResponseEvent extends RacineEvent
 {
     /**
+     * @var Application
+     */
+    private $application;
+    
+    /**
      * The response object.
      *
      * @var Response
      */
     private $response;
+    
+    /**
+     * GetResponseEvent constructor.
+     * @param Application $application
+     */
+    public function __construct(Application $application)
+    {
+        $this->application = $application;
+        
+        parent::__construct($application->getRequest());
+    }
+    
     
     /**
      * Returns the response object.
@@ -54,4 +72,13 @@ class GetResponseEvent extends RacineEvent
     {
         return null !== $this->response;
     }
+    
+    /**
+     * @return Application
+     */
+    public function getApplication()
+    {
+        return $this->application;
+    }
+    
 }
