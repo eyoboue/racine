@@ -11,8 +11,10 @@ use Racine\Http\Response;
 use Racine\Http\Session;
 use Racine\Logger\Logger;
 use Racine\Security\Authentication\Token\TokenInterface;
+use Racine\Security\Http\AccessControl;
 use Racine\Security\Http\Authenticator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
 use Symfony\Component\Templating\PhpEngine;
@@ -84,8 +86,10 @@ class Application
     
         $this->configureDispatcher();
         $this->securityHandle();
-    
+        
         $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this));
+        
+        $this->accessControl();
     }
     
     private function initSession()
@@ -109,6 +113,16 @@ class Application
     {
         $authenticator = new Authenticator($this->request, $this->dispatcher);
         $authenticator->watch($this);
+    }
+    
+    private function accessControl()
+    {
+        
+        $hasAccess = AccessControl::check($this);
+        
+        if($hasAccess !== true){
+            $this->end($this->render('errors/access_denied.t.php', [], Response::HTTP_UNAUTHORIZED));
+        }
     }
     
     private function setListeners()
@@ -142,8 +156,7 @@ class Application
             $response = $this->handle($controllerClass, $action);
         }
     
-        self::send($response);
-        $this->terminate($response);
+        $this->end($response);
     }
     
     private static function send($response)
@@ -207,14 +220,7 @@ class Application
         }
         
         $this->currentController = new $controllerClass();
-        
-        $this->currentController->setLogger($this->logger);
-        $this->currentController->setRequest($this->request);
-        $this->currentController->setTemplating($this->templating);
-        $this->currentController->setDispatcher($this->dispatcher);
-        if($this->getToken() instanceof TokenInterface){
-            $this->currentController->setToken($this->getToken());
-        }
+        $this->currentController->setApp($this);
         
         $method = new \ReflectionMethod($controllerClass, $action);
         return $method->invoke($this->currentController);
@@ -238,9 +244,16 @@ class Application
         
     }
     
+    private function end($response)
+    {
+        self::send($response);
+        $this->terminate($response);
+    }
+    
     private function terminate($response)
     {
         $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
+        die();
     }
     
     /**
@@ -259,9 +272,9 @@ class Application
         return $this->templating;
     }
     
-    public function render($view, array $params = [])
+    public function render($view, array $params = [], $responseCode = Response::HTTP_OK, $headers = [])
     {
-        return new Response($this->templating->render($view, $params));
+        return new Response($this->templating->render($view, $params), $responseCode, $headers);
     }
     
     public static function templating()
@@ -300,5 +313,25 @@ class Application
     public function getCurrentController()
     {
         return $this->currentController;
+    }
+    
+    /**
+     * @return EventDispatcher
+     */
+    public function getDispatcher()
+    {
+        return $this->dispatcher;
+    }
+    
+    public function authorize($action, $payload = null)
+    {
+        $accessDeniedResponse = $this->render('errors/access_denied.t.php', [], Response::HTTP_UNAUTHORIZED);
+        
+        if(is_null($this->getToken())) $this->end($accessDeniedResponse);
+        if(is_null($this->getToken()->getUser())) $this->end($accessDeniedResponse);
+        
+        if($this->getToken()->getUser()->can($action, $payload) !== true){
+            $this->end($accessDeniedResponse);
+        }
     }
 }

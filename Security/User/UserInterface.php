@@ -3,7 +3,9 @@
 namespace Racine\Security\User;
 
 
-interface UserInterface extends \Serializable
+use Racine\Security\Authorization\AuthorizationInterface;
+
+interface UserInterface extends \Serializable, AuthorizationInterface
 {
     /**
      * Returns the roles granted to the user.

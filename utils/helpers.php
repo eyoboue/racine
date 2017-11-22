@@ -138,3 +138,17 @@ function normalize_validator_messages($errors){
     
     return $normalized_messages;
 }
+
+/**
+ * @param int $size
+ * @return string
+ */
+function convertToReadableSize($size, $lang = 'fr'){
+    $base = log($size) / log(1024);
+    $suffix = [
+        'fr' => ["octets", "Ko", "Mo", "Go", "To"],
+        'en' => ["bytes", "KB", "MB", "GB", "TB"],
+    ];
+    $f_base = floor($base);
+    return round(pow(1024, $base - floor($base)), 1) .' '. $suffix[$lang][$f_base];
+}

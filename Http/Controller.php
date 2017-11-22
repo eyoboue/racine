@@ -4,6 +4,7 @@
 namespace Racine\Http;
 
 
+use Racine\Application;
 use Racine\Logger\Logger;
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\User\UserInterface;
@@ -12,6 +13,11 @@ use Symfony\Component\Templating\PhpEngine;
 
 abstract class Controller
 {
+    /**
+     * @var Application
+     */
+    protected $app;
+    
     /**
      * @var Request
      */
@@ -48,47 +54,36 @@ abstract class Controller
      */
     protected $errors = [];
     
-    
-    protected function render($view, array $params = [])
+    /**
+     * @param Application $app
+     */
+    public function setApp(Application &$app)
     {
-        return new Response($this->templating->render($view, $params));
+        $this->app = $app;
+        
+        $this->request = $this->app->getRequest();
+        $this->dispatcher = $this->app->getDispatcher();
+        $this->templating = $this->app->getTemplating();
+        $this->logger = $this->app->getLogger();
+        
+        $this->token = $this->app->getToken();
+        if($this->token instanceof TokenInterface){
+            $this->user = $this->token->getUser();
+        }
+    }
+    
+    
+    protected function render($view, array $params = [], $responseCode = Response::HTTP_OK, $headers = [])
+    {
+        return $this->app->render($view, $params, $responseCode, $headers);
     }
     
     protected function dispatch($name, $event){
         $this->dispatcher->dispatch($name, $event);
     }
     
-    public function setRequest(Request $request)
+    protected function authorize($action, $payload = null)
     {
-        $this->request = $request;
-    }
-    
-    public function setTemplating(PhpEngine $templating)
-    {
-        $this->templating = $templating;
-    }
-    
-    /**
-     * @param EventDispatcher $dispatcher
-     */
-    public function setDispatcher(EventDispatcher $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
-    }
-    
-    public function setToken(TokenInterface $token)
-    {
-        $this->token = $token;
-        if($token instanceof TokenInterface){
-            $this->user = $this->token->getUser();
-        }
-    }
-    
-    /**
-     * @param Logger $logger
-     */
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
+        $this->app->authorize($action, $payload);
     }
 }
