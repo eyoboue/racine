@@ -152,3 +152,42 @@ function convertToReadableSize($size, $lang = 'fr'){
     $f_base = floor($base);
     return round(pow(1024, $base - floor($base)), 1) .' '. $suffix[$lang][$f_base];
 }
+
+/**
+ * @param $array
+ * @return array
+ */
+function super_array_unique($array)
+{
+    $result = array_map("unserialize", array_unique(array_map("serialize", $array)));
+    
+    foreach ($result as $key => $value)
+    {
+        if ( is_array($value) )
+        {
+            $result[$key] = super_array_unique($value);
+        }
+    }
+    
+    return $result;
+}
+
+/**
+ * @param $array
+ * @param string $key
+ * @return array
+ */
+function unique_multidim_array($array, $key) {
+    $temp_array = array();
+    $i = 0;
+    $key_array = array();
+    
+    foreach($array as $val) {
+        if (!in_array($val[$key], $key_array)) {
+            $key_array[$i] = $val[$key];
+            $temp_array[$i] = $val;
+        }
+        $i++;
+    }
+    return $temp_array;
+}
