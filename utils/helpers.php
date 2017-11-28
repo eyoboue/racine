@@ -144,11 +144,17 @@ function normalize_validator_messages($errors){
  * @return string
  */
 function convertToReadableSize($size, $lang = 'fr'){
-    $base = log($size) / log(1024);
     $suffix = [
         'fr' => ["octets", "Ko", "Mo", "Go", "To"],
         'en' => ["bytes", "KB", "MB", "GB", "TB"],
     ];
+
+    if(!is_numeric($size)) $size = 0;
+
+    if($size <= 0) return '0 '. $suffix[$lang][0];
+
+    $base = log($size) / log(1024);
+
     $f_base = floor($base);
     return round(pow(1024, $base - floor($base)), 1) .' '. $suffix[$lang][$f_base];
 }

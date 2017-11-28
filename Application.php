@@ -24,7 +24,9 @@ class Application
 {
     const DEFAULT_CONTROLLER_ACTION = 'index';
     const SESSION_NAME = 'racine_session';
-    
+    const COMMAND_NAME = 'racine';
+    const COMMAND_VERSION = '1.0.0';
+
     /**
      * @var TokenInterface
      */
@@ -69,10 +71,22 @@ class Application
      * @var string|null
      */
     private $action = null;
+
+    private $isCli = false;
+
     
     private function __construct()
     {
         $this->initialize();
+    }
+
+    public static function getInstance($isCli = false)
+    {
+        if(is_null(self::$instance)){
+            self::$instance = new self();
+            self::$instance->isCli = $isCli;
+        }
+        return self::$instance;
     }
     
     private function initialize()
@@ -80,10 +94,10 @@ class Application
         $this->logger = new Logger();
         
         $this->request = Request::createFromGlobals();
-        $this->initSession();
         $this->initDB();
         $this->iniTemplating();
-    
+
+        $this->initSession();
         $this->configureDispatcher();
         $this->securityHandle();
         
@@ -94,13 +108,16 @@ class Application
     
     private function initSession()
     {
+        if($this->isCli) return;
+
         $session = new Session();
-        
+
         if(!$session->isStarted()){
             $session->setName(self::SESSION_NAME);
             $session->start();
         }
         $this->request->setSession($session);
+
     }
     
     private function configureDispatcher()
@@ -111,13 +128,14 @@ class Application
     
     private function securityHandle()
     {
+        if($this->isCli) return;
         $authenticator = new Authenticator($this->request, $this->dispatcher);
         $authenticator->watch($this);
     }
     
     private function accessControl()
     {
-        
+        if ($this->isCli) return;
         $hasAccess = AccessControl::check($this);
         
         if($hasAccess !== true){
@@ -138,30 +156,42 @@ class Application
         $this->templating = new PhpEngine(new TemplateNameParser(), $loader);
         $this->templating->set(new SlotsHelper());
     }
-    
-    public static function getInstance()
+
+    private function loadCommands(\Symfony\Component\Console\Application &$application)
     {
-        if(is_null(self::$instance)){
-            self::$instance = new self();
+        $commands = require _APP_DIR_.'/commands.php';
+        if (!is_array($commands)) return;
+        foreach ($commands as $command){
+            if(!is_string($command)) continue;
+            if(!class_exists($command)) continue;
+            $application->add(new $command());
         }
-        return self::$instance;
     }
     
     public function run($controllerClass = null, $action = null)
     {
-        $this->action = $action;
-        if(is_callable($controllerClass)){
-            $response = $controllerClass($this);
+        if($this->isCli){
+            $console = new \Symfony\Component\Console\Application(self::COMMAND_NAME, self::COMMAND_VERSION);
+            $this->loadCommands($console);
+            $this->end($console);
         }else{
-            $response = $this->handle($controllerClass, $action);
+            $this->action = $action;
+            if(is_callable($controllerClass)){
+                $response = $controllerClass($this);
+            }else{
+                $response = $this->handle($controllerClass, $action);
+            }
         }
+
     
         $this->end($response);
     }
     
     private static function send($response)
     {
-        if(is_array($response)){
+        if($response instanceof \Symfony\Component\Console\Application){
+            $response->run();
+        }elseif(is_array($response)){
             dump($response);
         }elseif(is_object($response)){
             if(($response instanceof \Symfony\Component\HttpFoundation\Response) || is_subclass_of($response, "\\Symfony\\Component\\HttpFoundation\\Response")){
@@ -333,5 +363,13 @@ class Application
         if($this->getToken()->getUser()->can($action, $payload) !== true){
             $this->end($accessDeniedResponse);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCli()
+    {
+        return $this->isCli;
     }
 }

@@ -17,7 +17,6 @@ class Authentication
         $session = $request->getSession();
         $session->set(Security::LOGGED_TOKEN, serialize($token));
         
-        
         return $token->isAuthenticated();
     }
     

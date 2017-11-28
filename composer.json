@@ -17,6 +17,7 @@
         "symfony/var-dumper": "~2.8",
         "php-activerecord/php-activerecord": "^1.2",
         "symfony/event-dispatcher": "~2.8",
+        "symfony/console": "~2.8",
         "monolog/monolog": "~1.0"
     },
     "autoload": {

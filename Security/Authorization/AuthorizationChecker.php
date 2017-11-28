@@ -41,7 +41,7 @@ class AuthorizationChecker
             if(class_exists($model)){
                 if (($payload instanceof Model) && (get_class($payload) === $model)) {
                     $policies[] = $policy;
-                } elseif (class_exists($payload) && $payload === $model) {
+                } elseif ( is_string($payload) && class_exists($payload) && $payload === $model) {
                     $policies[] = $policy;
                 }
             } else {
