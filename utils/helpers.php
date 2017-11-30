@@ -29,7 +29,7 @@ function path($uri = ''){
  * @return string
  */
 function asset($path){
-    return path()._PUBLIC_DIRNAME_.DIRECTORY_SEPARATOR.ltrim($path, '\\/');
+    return path().ltrim($path, '\\/');
 }
 
 /**
