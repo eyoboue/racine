@@ -29,7 +29,8 @@ function path($uri = ''){
  * @return string
  */
 function asset($path){
-    return path().ltrim($path, '\\/');
+    if(!defined('_PUBLIC_DIRNAME_')) define('_PUBLIC_DIRNAME_', '');
+    return path().ltrim(trim(_PUBLIC_DIRNAME_, '/').DIRECTORY_SEPARATOR.$path, '\\/');
 }
 
 /**
