@@ -93,11 +93,12 @@ class Application
     {
         $this->logger = new Logger();
         $this->request = Request::createFromGlobals();
+
         $this->iniTemplating();
 
         $this->initSession();
-        $this->loadDotEnvFile();
 
+        $this->loadDotEnvFile();
         $this->initDB();
 
         $this->configureDispatcher();
