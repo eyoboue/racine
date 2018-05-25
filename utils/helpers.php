@@ -215,3 +215,15 @@ function slugit($str, $replace=array(), $delimiter='-') {
     $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
     return $clean;
 }
+
+/**
+ * @param $name
+ * @param null $default
+ * @return array|false|null|string
+ */
+function env($name, $default = null) {
+    if(getenv($name) === false) {
+        return $default;
+    }
+    return getenv($name);
+}
