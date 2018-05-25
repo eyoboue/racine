@@ -91,13 +91,14 @@ class Application
     
     private function initialize()
     {
+        $this->logger = new Logger();
+        $this->request = Request::createFromGlobals();
+        $this->iniTemplating();
+
         $this->initSession();
         $this->loadDotEnvFile();
 
-        $this->logger = new Logger();
-        $this->request = Request::createFromGlobals();
         $this->initDB();
-        $this->iniTemplating();
 
         $this->configureDispatcher();
         $this->securityHandle();
