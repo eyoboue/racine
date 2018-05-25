@@ -3,6 +3,7 @@
 
 namespace Racine;
 
+use Dotenv\Dotenv;
 use Racine\Event\FinishRequestEvent;
 use Racine\Event\GetResponseEvent;
 use Racine\Http\Controller as BaseController;
@@ -14,7 +15,6 @@ use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Http\AccessControl;
 use Racine\Security\Http\Authenticator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
 use Symfony\Component\Templating\PhpEngine;
@@ -91,6 +91,8 @@ class Application
     
     private function initialize()
     {
+        $this->loadDotEnvFile();
+
         $this->logger = new Logger();
         
         $this->request = Request::createFromGlobals();
@@ -104,6 +106,13 @@ class Application
         $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this));
         
         $this->accessControl();
+    }
+
+    private function loadDotEnvFile()
+    {
+        $dotenv = new Dotenv(_ROOT_DIR_);
+        $dotenv->load();
+        $dotenv->required(['APP_PATH']);
     }
     
     private function initSession()
