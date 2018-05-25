@@ -222,8 +222,9 @@ function slugit($str, $replace=array(), $delimiter='-') {
  * @return array|false|null|string
  */
 function env($name, $default = null) {
-    if(getenv($name) === false) {
+    $value = getenv($name);
+    if($value === false) {
         return $default;
     }
-    return getenv($name);
+    return $value;
 }
