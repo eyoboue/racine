@@ -86,7 +86,7 @@ function user(){
  * @param string $uri
  */
 function internal_request_uri($uri = null){
-    if(is_null($uri)){
+    if(empty($uri)){
         $uri = request()->getRequestUri();
     }
     $pos = strpos($uri, config('app')['path']);
