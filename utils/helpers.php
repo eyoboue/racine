@@ -86,10 +86,12 @@ function user(){
  * @param string $uri
  */
 function internal_request_uri($uri = null){
+    $path = config('app')['path'];
     if(empty($uri)){
         $uri = request()->getRequestUri();
     }
-    $pos = strpos($uri, config('app')['path']);
+    if(empty($path)) return $uri;
+    $pos = strpos($uri, $path);
     if($pos === 0){
         return substr($uri, strlen(config('app')['path'])-1);
     }else{

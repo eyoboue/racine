@@ -91,13 +91,14 @@ class Application
     
     private function initialize()
     {
-        $this->logger = new Logger();
         $this->request = Request::createFromGlobals();
-
-        $this->iniTemplating();
-
         $this->initSession();
-
+        
+        $this->logger = new Logger();
+    
+        $this->iniTemplating();
+    
+    
         $this->loadDotEnvFile();
         $this->initDB();
 
@@ -118,10 +119,10 @@ class Application
     
     private function initSession()
     {
-        if($this->isCli) return;
+        if(!is_null($this->request->getSession()) || $this->isCli) return;
 
         $session = new Session();
-
+        
         if(!$session->isStarted()){
             $session->setName(self::SESSION_NAME);
             $session->start();
