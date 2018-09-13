@@ -93,12 +93,11 @@ class Application
     {
         $this->request = Request::createFromGlobals();
         $this->initSession();
-        
         $this->logger = new Logger();
-    
+        
+        
         $this->iniTemplating();
-    
-    
+        
         $this->loadDotEnvFile();
         $this->initDB();
 
@@ -106,7 +105,7 @@ class Application
         $this->securityHandle();
         
         $this->dispatcher->dispatch(RacineEvents::REQUEST, new GetResponseEvent($this));
-        
+    
         $this->accessControl();
     }
 
@@ -114,7 +113,7 @@ class Application
     {
         $dotenv = new Dotenv(_ROOT_DIR_);
         $dotenv->load();
-        $dotenv->required(['APP_PATH']);
+//        $dotenv->required(['APP_PATH']);
     }
     
     private function initSession()
@@ -124,7 +123,7 @@ class Application
         $session = new Session();
         
         if(!$session->isStarted()){
-            $session->setName(self::SESSION_NAME);
+            $session->setName(config('session')['name']);
             $session->start();
         }
         $this->request->setSession($session);

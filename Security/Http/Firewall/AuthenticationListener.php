@@ -80,8 +80,7 @@ class AuthenticationListener implements ListenerInterface
     final public function handle(GetResponseEvent $event)
     {
         $request = $event->getRequest();
-        
-        if(internal_request_uri($request->getRequestUri()) == $this->options['login_path'] || internal_request_uri($request->getRequestUri()) == $this->options['check_path']){
+        if(preg_match('/('.addcslashes($this->options['login_path'], './').')$/', internal_request_uri($request->getRequestUri())) || preg_match('/('.addcslashes($this->options['check_path'], './').')$/', internal_request_uri($request->getRequestUri()))){
             return;
         }
         
@@ -100,8 +99,6 @@ class AuthenticationListener implements ListenerInterface
                 $token = $this->authenticationManager->authenticate($this->token);
                 if($token instanceof TokenInterface){
                     $this->application->setToken($token);
-                    
-                    
                 }
             }
            
@@ -112,7 +109,6 @@ class AuthenticationListener implements ListenerInterface
             }
             
         }
-        
         if(is_null($this->token)){
             $response = new RedirectResponse(path($this->options['login_path']));
         }
