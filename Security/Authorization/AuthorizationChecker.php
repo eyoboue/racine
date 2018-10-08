@@ -62,15 +62,14 @@ class AuthorizationChecker
                 $before = $policyInstance->before($user);
                 if(!is_null($before)){
                     $hasAccess = $before;
+                    if($hasAccess){
+                        continue;
+                    }
                 }
             }
             
             if($hasAccess){
-                if($payload instanceof Model){
-                    $hasAccess = $policyInstance->$action($user, $payload);
-                }else{
-                    $hasAccess = $policyInstance->$action($user);
-                }
+                $hasAccess = $policyInstance->$action($user, $payload);
             }
             
             if(!$hasAccess) break;
