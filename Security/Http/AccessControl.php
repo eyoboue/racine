@@ -29,7 +29,7 @@ class AccessControl
             $matcher = new RequestMatcher($access['path']);
             if(!$matcher->matches($application->getRequest())) continue;
     
-            $ability = explode(',', $access['can']);
+            $ability = explode(':', $access['can']);
             if(!empty($ability[0])){
                 $action = $ability[0];
                 $payload = null;
