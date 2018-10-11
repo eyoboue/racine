@@ -3,7 +3,7 @@
 namespace Racine;
 
 
-final class RacineEvents
+abstract class RacineEvents
 {
     /**
      * The APPLICATION event occurs at the application is initialized

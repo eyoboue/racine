@@ -5,11 +5,11 @@ namespace Racine\Security\Authentication\Provider;
 
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Authentication\Token\UsernamePasswordToken;
-use Racine\Security\User\UserInterface;
 use Racine\Security\Exception\AuthenticationException;
 use Racine\Security\Exception\AuthenticationServiceException;
 use Racine\Security\Exception\BadCredentialsException;
 use Racine\Security\Exception\UsernameNotFoundException;
+use Racine\Security\User\UserInterface;
 
 abstract class UserAuthenticationProvider implements AuthenticationProviderInterface
 {
@@ -57,7 +57,6 @@ abstract class UserAuthenticationProvider implements AuthenticationProviderInter
             $user = $this->retrieveUser($username, $token);
         } catch (UsernameNotFoundException $e) {
             $e->setUsername($username);
-            
             throw $e;
         }
         

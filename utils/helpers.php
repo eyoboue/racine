@@ -1,7 +1,35 @@
 <?php
 
+if(!function_exists('app')){
+    /**
+     * @return \Racine\Application
+     */
+    function app(){
+        return \Racine\Application::getInstance();
+    }
+}
+
+if(!function_exists('dispatcher')){
+    /**
+     * @return \Symfony\Component\EventDispatcher\EventDispatcher
+     */
+    function dispatcher(){
+        return app()->getDispatcher();
+    }
+}
+
+if(!function_exists('event')){
+    /**
+     * @param string $eventName
+     * @param \Symfony\Component\EventDispatcher\Event $event
+     * @return \Symfony\Component\EventDispatcher\Event
+     */
+    function event($eventName, \Symfony\Component\EventDispatcher\Event $event){
+        return dispatcher()->dispatch($eventName, $event);
+    }
+}
+
 if(!function_exists('config')){
-    
     /**
      * @param string $filename
      * @param bool $objectForMap
@@ -53,13 +81,16 @@ if(!function_exists('request')){
 }
 
 if(!function_exists('logger')){
+    
     /**
+     * @param null|string $text
      * @return \Racine\Logger\Logger
      */
-    function logger(){
-        return \Racine\Application::getInstance()->getLogger();
+    function logger($text = null){
+        return \Racine\Application::getInstance()->getLogger($text);
     }
 }
+
 
 if(!function_exists('session')){
     /**

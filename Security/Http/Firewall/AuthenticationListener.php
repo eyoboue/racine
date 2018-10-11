@@ -8,6 +8,9 @@ use Racine\Http\Controller;
 use Racine\Http\Request;
 use Racine\Security\Authentication\Provider\AuthenticationProviderInterface;
 use Racine\Security\Authentication\Token\TokenInterface;
+use Racine\Security\AuthenticationEvents;
+use Racine\Security\Event\AuthenticationEvent;
+use Racine\Security\Event\AuthenticationFailureEvent;
 use Racine\Security\Exception\AuthenticationException;
 use Racine\Security\Exception\BadCredentialsException;
 use Racine\Security\Exception\SessionUnavailableException;
@@ -98,12 +101,13 @@ class AuthenticationListener implements ListenerInterface
             if (!is_null($this->token)){
                 $token = $this->authenticationManager->authenticate($this->token);
                 if($token instanceof TokenInterface){
+                    $this->token = $token;
                     $this->application->setToken($token);
+                    $this->onSuccess($request, $this->token);
                 }
             }
-           
         }catch (AuthenticationException $e) {
-            $this->onFailure($request, $e);
+            $this->onFailure($request, $this->token, $e);
             if($e instanceof UsernameNotFoundException || $e instanceof BadCredentialsException){
                 $response = new RedirectResponse(path($this->options['login_path']));
             }
@@ -118,13 +122,13 @@ class AuthenticationListener implements ListenerInterface
         }
     }
     
-    private function onFailure(Request $request, AuthenticationException $failed)
+    private function onFailure(Request $request, TokenInterface $token, AuthenticationException $failed)
     {
-    
+        $this->application->getDispatcher()->dispatch(AuthenticationEvents::AUTHENTICATION_FAILURE, new AuthenticationFailureEvent($token, $failed));
     }
     
     private function onSuccess(Request $request, TokenInterface $token)
     {
-    
+        $this->application->getDispatcher()->dispatch(AuthenticationEvents::AUTHENTICATION_SUCCESS, new AuthenticationEvent($token));
     }
 }

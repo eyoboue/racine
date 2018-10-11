@@ -79,7 +79,11 @@ class Application
     {
         $this->initialize();
     }
-
+    
+    /**
+     * @param bool $isCli
+     * @return Application
+     */
     public static function getInstance($isCli = false)
     {
         if(is_null(self::$instance)){
@@ -342,8 +346,11 @@ class Application
     /**
      * @return Logger
      */
-    public function getLogger()
+    public function getLogger($text = null)
     {
+        if(!empty($text)){
+            $this->logger->info($text);
+        }
         return $this->logger;
     }
     
