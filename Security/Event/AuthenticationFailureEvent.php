@@ -4,8 +4,9 @@ namespace Racine\Security\Event;
 
 use Racine\Security\Authentication\Token\TokenInterface;
 use Racine\Security\Exception\AuthenticationException;
+use Symfony\Component\EventDispatcher\Event;
 
-class AuthenticationFailureEvent extends AuthenticationEvent
+class AuthenticationFailureEvent extends Event
 {
     /**
      * @var AuthenticationException
@@ -14,12 +15,10 @@ class AuthenticationFailureEvent extends AuthenticationEvent
     
     /**
      * AuthenticationFailureEvent constructor.
-     * @param TokenInterface $token
      * @param AuthenticationException $exception
      */
-    public function __construct(TokenInterface $token, AuthenticationException $exception)
+    public function __construct(AuthenticationException $exception)
     {
-        parent::__construct($token);
         $this->exception = $exception;
     }
     

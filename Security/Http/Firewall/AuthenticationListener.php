@@ -124,7 +124,7 @@ class AuthenticationListener implements ListenerInterface
     
     private function onFailure(Request $request, TokenInterface $token, AuthenticationException $failed)
     {
-        $this->application->getDispatcher()->dispatch(AuthenticationEvents::AUTHENTICATION_FAILURE, new AuthenticationFailureEvent($token, $failed));
+        $this->application->getDispatcher()->dispatch(AuthenticationEvents::AUTHENTICATION_FAILURE, new AuthenticationFailureEvent($failed));
     }
     
     private function onSuccess(Request $request, TokenInterface $token)

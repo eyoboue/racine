@@ -25,7 +25,7 @@ class Application
     const DEFAULT_CONTROLLER_ACTION = 'index';
     const SESSION_NAME = 'racine_session';
     const COMMAND_NAME = 'racine';
-    const COMMAND_VERSION = '1.0.0';
+    const COMMAND_VERSION = '1.1.0';
 
     /**
      * @var TokenInterface
