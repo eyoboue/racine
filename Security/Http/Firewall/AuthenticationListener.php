@@ -107,7 +107,7 @@ class AuthenticationListener implements ListenerInterface
                 }
             }
         }catch (AuthenticationException $e) {
-            $this->onFailure($request, $this->token, $e);
+            $this->onFailure($request, $e);
             if($e instanceof UsernameNotFoundException || $e instanceof BadCredentialsException){
                 $response = new RedirectResponse(path($this->options['login_path']));
             }
@@ -122,7 +122,7 @@ class AuthenticationListener implements ListenerInterface
         }
     }
     
-    private function onFailure(Request $request, TokenInterface $token, AuthenticationException $failed)
+    private function onFailure(Request $request, AuthenticationException $failed)
     {
         $this->application->getDispatcher()->dispatch(AuthenticationEvents::AUTHENTICATION_FAILURE, new AuthenticationFailureEvent($failed));
     }
