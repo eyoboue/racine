@@ -98,6 +98,7 @@ class Application
         $this->request = Request::createFromGlobals();
         $this->initSession();
         $this->logger = new Logger();
+        $this->setExceptionHandler();
         
         
         $this->iniTemplating();
@@ -162,6 +163,40 @@ class Application
         $listenerResolver = new ListenerResolver();
         $listenerResolver->resolve($this->dispatcher);
     }
+
+    public function isProduction()
+    {
+        return in_array(env('APP_ENV', 'local'), ['production', 'prod']);
+    }
+
+    private function setExceptionHandler()
+    {
+        if(version_compare(PHP_VERSION, '7.0.0', '<')){
+            set_exception_handler([$this, 'exceptionHandler']);
+        }else{
+            set_exception_handler([$this, 'exceptionHandlerPhp7']);
+        }
+    }
+
+    public function exceptionHandler(\Exception $exception)
+    {
+        $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
+        if($this->isProduction()){
+            $this->end(new Response("Internal Error", Response::HTTP_INTERNAL_SERVER_ERROR));
+        }else{
+            $this->end(new Response(htmlspecialchars($exception->getTraceAsString()), Response::HTTP_INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    public function exceptionHandlerPhp7(\Throwable $exception)
+    {
+        $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
+        if($this->isProduction()){
+            $this->end(new Response("Internal Error", Response::HTTP_INTERNAL_SERVER_ERROR));
+        }else{
+            $this->end(new Response(htmlspecialchars($exception->getTraceAsString()), Response::HTTP_INTERNAL_SERVER_ERROR));
+        }
+    }
     
     private function iniTemplating()
     {
@@ -223,16 +258,12 @@ class Application
     {
         if(empty($action)){
             if($this->request->query->has(_CONTROLLER_REQUEST_ACTION_)){
-                $action = $this->request->query->get(_CONTROLLER_REQUEST_ACTION_);
+                $action = $this->request->query->getAlnum(_CONTROLLER_REQUEST_ACTION_);
             }else{
                 $action = self::DEFAULT_CONTROLLER_ACTION;
             }
         }
-        try{
-            return $this->resolveController($controllerClass, $action);
-        }catch (\Exception $e){
-            return new Response($e->getMessage()."<br>File: ".$e->getFile()."<br> Line: ".$e->getLine(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->resolveController($controllerClass, $action);
     }
     
     private function resolveController($controllerClass, $action)
