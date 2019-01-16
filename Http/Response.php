@@ -9,9 +9,9 @@ class Response extends \Symfony\Component\HttpFoundation\Response
     {
         $securityHeaders = [
             'X-Frame-Options' => 'DENY',
-            'X-XSS-Protection' => '1; mode=block',
-//            'Content-Security-Policy' => "frame-src 'self'; script-src 'self' 'unsafe-eval';",
+            'X-XSS-Protection' => '1; mode=block'
         ];
+
         parent::__construct($content, $status, array_merge($securityHeaders, $headers));
     }
 }
