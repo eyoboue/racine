@@ -180,21 +180,27 @@ class Application
 
     public function exceptionHandler(\Exception $exception)
     {
+        $error = '<p>'.$exception->getMessage().'</p>';
+        $this->logger->error($exception->getMessage());
         $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
         if($this->isProduction()){
-            $this->end(new Response("Internal Error", Response::HTTP_INTERNAL_SERVER_ERROR));
+            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }else{
-            $this->end(new Response(htmlspecialchars($exception->getTraceAsString()), Response::HTTP_INTERNAL_SERVER_ERROR));
+            $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
+            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
     }
 
     public function exceptionHandlerPhp7(\Throwable $exception)
     {
+        $error = '<p>'.$exception->getMessage().'</p>';
+        $this->logger->error($exception->getMessage());
         $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
         if($this->isProduction()){
-            $this->end(new Response("Internal Error", Response::HTTP_INTERNAL_SERVER_ERROR));
+            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }else{
-            $this->end(new Response(htmlspecialchars($exception->getTraceAsString()), Response::HTTP_INTERNAL_SERVER_ERROR));
+            $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
+            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
     }
     
