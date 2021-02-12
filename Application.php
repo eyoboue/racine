@@ -154,7 +154,7 @@ class Application
         $hasAccess = AccessControl::check($this);
         
         if($hasAccess !== true){
-            $this->end($this->render('errors/access_denied.t.php', [], Response::HTTP_UNAUTHORIZED));
+            return $this->end($this->render('errors/access_denied.t.php', [], Response::HTTP_UNAUTHORIZED));
         }
     }
     
@@ -245,16 +245,18 @@ class Application
     private static function send($response)
     {
         if($response instanceof \Symfony\Component\Console\Application){
-            $response->run();
+            return $response->run();
         }elseif(is_array($response)){
             dump($response);
+            die();
         }elseif(is_object($response)){
             if(($response instanceof \Symfony\Component\HttpFoundation\Response) || is_subclass_of($response, "\\Symfony\\Component\\HttpFoundation\\Response")){
-                $response->send();
+                return $response->send();
             }
         }else{
             if(!is_null($response)){
                 echo $response;
+                die();
             }
             
         }
@@ -321,20 +323,17 @@ class Application
             $this->dbCfg->set_connections($connections, 'default');
         }
         
-        
-        
     }
     
     private function end($response)
     {
         self::send($response);
-        $this->terminate($response);
+        return $this->terminate($response);
     }
     
     private function terminate($response)
     {
-        $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
-        die();
+        return $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
     }
     
     /**
@@ -415,7 +414,7 @@ class Application
         if(is_null($this->getToken()->getUser())) $this->end($accessDeniedResponse);
         
         if($this->getToken()->getUser()->can($action, $payload) !== true){
-            $this->end($accessDeniedResponse);
+            return $this->end($accessDeniedResponse);
         }
     }
 

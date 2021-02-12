@@ -1,9 +1,9 @@
 {
     "name": "racinephp/racine",
     "type": "library",
-    "version": "1.1.1",
+    "version": "1.0.0-dev",
     "description": "",
-    "license": "MIT",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Eugène YOBOUE",
@@ -28,5 +28,6 @@
         "files": [
             "utils/helpers.php"
         ]
-    }
+    },
+    "minimum-stability": "dev"
 }
