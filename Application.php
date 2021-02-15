@@ -118,7 +118,6 @@ class Application
     {
         $dotenv = new Dotenv(_ROOT_DIR_);
         $dotenv->load();
-//        $dotenv->required(['APP_PATH']);
     }
     
     private function initSession()
@@ -184,11 +183,12 @@ class Application
         $this->logger->error($exception->getMessage());
         $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
         if($this->isProduction()){
-            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
+            return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }else{
             $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
-            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
+            return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
+        die();
     }
 
     public function exceptionHandlerPhp7(\Throwable $exception)
@@ -197,11 +197,12 @@ class Application
         $this->logger->error($exception->getMessage());
         $this->logger->error(htmlspecialchars($exception->getTraceAsString()));
         if($this->isProduction()){
-            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
+            return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }else{
             $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
-            $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
+            return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
+        die();
     }
     
     private function iniTemplating()
@@ -228,7 +229,7 @@ class Application
         if($this->isCli){
             $console = new \Symfony\Component\Console\Application(self::COMMAND_NAME, self::COMMAND_VERSION);
             $this->loadCommands($console);
-            $this->end($console);
+            return $this->end($console);
         }else{
             $this->action = $action;
             if(is_callable($controllerClass)){
@@ -239,7 +240,7 @@ class Application
         }
 
     
-        $this->end($response);
+        return $this->end($response);
     }
     
     private static function send($response)
@@ -410,11 +411,18 @@ class Application
     {
         $accessDeniedResponse = $this->render('errors/access_denied.t.php', [], Response::HTTP_UNAUTHORIZED);
         
-        if(is_null($this->getToken())) $this->end($accessDeniedResponse);
-        if(is_null($this->getToken()->getUser())) $this->end($accessDeniedResponse);
-        
+        if(is_null($this->getToken())) {
+            return $this->end($accessDeniedResponse);
+            die();
+        }
+        if(is_null($this->getToken()->getUser())) {
+            return $this->end($accessDeniedResponse);
+            die();
+            
+        }
         if($this->getToken()->getUser()->can($action, $payload) !== true){
             return $this->end($accessDeniedResponse);
+            die();
         }
     }
 
