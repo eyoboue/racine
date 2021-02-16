@@ -188,7 +188,6 @@ class Application
             $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
             return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
-        die();
     }
 
     public function exceptionHandlerPhp7(\Throwable $exception)
@@ -202,7 +201,6 @@ class Application
             $error .= '<p>'.htmlspecialchars($exception->getTraceAsString()).'</p>';
             return $this->end(new Response($error, Response::HTTP_INTERNAL_SERVER_ERROR));
         }
-        die();
     }
     
     private function iniTemplating()
@@ -334,7 +332,8 @@ class Application
     
     private function terminate($response)
     {
-        return $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
+        $this->dispatcher->dispatch(RacineEvents::TERMINATE, new FinishRequestEvent($this->request));
+        die();
     }
     
     /**
@@ -413,16 +412,13 @@ class Application
         
         if(is_null($this->getToken())) {
             return $this->end($accessDeniedResponse);
-            die();
         }
         if(is_null($this->getToken()->getUser())) {
             return $this->end($accessDeniedResponse);
-            die();
             
         }
         if($this->getToken()->getUser()->can($action, $payload) !== true){
             return $this->end($accessDeniedResponse);
-            die();
         }
     }
 
