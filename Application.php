@@ -324,7 +324,7 @@ class Application
         
     }
     
-    private function end($response)
+    public function end($response)
     {
         self::send($response);
         return $this->terminate($response);
