@@ -118,7 +118,7 @@ class AuthenticationListener implements ListenerInterface
         }
         
         if($response instanceof RedirectResponse){
-            return $response->send();
+            die($response->send());
         }
     }
     
