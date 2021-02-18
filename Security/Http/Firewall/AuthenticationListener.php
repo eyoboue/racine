@@ -120,6 +120,7 @@ class AuthenticationListener implements ListenerInterface
         if($response instanceof RedirectResponse){
             die($this->application->end($response));
         }
+        
     }
     
     private function onFailure(Request $request, AuthenticationException $failed)

@@ -123,8 +123,8 @@ class Application
     private function initSession()
     {
         if(!is_null($this->request->getSession()) || $this->isCli) return;
-
-        $session = new Session();
+        
+        $session = new Session(null, null, null, $this);
         
         if(!$session->isStarted()){
             $session->setName(config('session')['name']);
